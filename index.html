@@ -118,10 +118,31 @@ async function loadAll(){
 function yearList(){return YEARS;}
 function esc(s){return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
 function coverHTML(b,i){
-  if(b.cover)return `<img src="${esc(b.cover)}" alt="${esc(b.title)}" loading="lazy" decoding="async" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'封面缺失'}))">`;
+  if(b.cover){
+    return `<img src="${esc(b.cover)}" alt="${esc(b.title)}" data-path="${esc(b.cover)}" data-title="${esc(b.title)}" loading="lazy" decoding="async" onerror="coverErr(this)">`;
+  }
   const[c1,c2]=PALETTES[i%PALETTES.length];
   return `<span style="background:linear-gradient(160deg,${c1},${c2})">${esc(b.title.slice(0,12))}</span>`;
 }
+/* 封面加载失败重试链：GitHub 原源 → jsDelivr 国内 CDN → 原源+时间戳强刷 → 占位 */
+window.coverErr=function(img){
+  const path=img.dataset.path||"";
+  const step=+(img.dataset.step||0)+1;
+  img.dataset.step=step;
+  const sources=[
+    "https://cdn.jsdelivr.net/gh/kzooer362-design/Book-sharing@main/"+path,
+    path+"?r="+Date.now()
+  ];
+  if(step<=sources.length){
+    setTimeout(()=>{img.src=sources[step-1];}, step===2?1500:0);
+  }else{
+    const t=(img.dataset.title||"").slice(0,1);
+    const span=document.createElement("span");
+    span.textContent=t||"书";
+    span.style.background="linear-gradient(160deg,#7b5e57,#3e2f2a)";
+    img.replaceWith(span);
+  }
+};
 
 function renderYears(){
   document.getElementById("yearTabs").innerHTML=yearList().map(y=>
