@@ -47,6 +47,9 @@
   .author{color:var(--sub);font-size:14px;margin-top:6px}
   .author::before{content:"— "}
   .intro{grid-area:intro;color:#57503f;font-size:15px;line-height:1.9;margin-top:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .intro.expanded{-webkit-line-clamp:unset;display:block}
+  .more{display:none;grid-column:2;border:0;background:none;color:var(--accent);font-size:13px;cursor:pointer;padding:2px 0 0;font-family:inherit;justify-self:start}
+  .more.on{display:inline-block}
 
   .empty{display:none;text-align:center;padding:70px 0;color:var(--sub)}
   .empty .zh{font-family:var(--serif);font-size:20px;color:var(--ink)}
@@ -63,6 +66,8 @@
     .cover span{font-size:11px;letter-spacing:.15em}
     .head{padding-top:0;display:flex;flex-direction:column;justify-content:center;min-width:0}
     .intro{-webkit-line-clamp:4;margin-top:6px}
+    .intro.expanded{-webkit-line-clamp:unset}
+    .more{grid-column:1/-1}
     .title{font-size:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   }
 </style>
@@ -181,7 +186,17 @@ function render(){
         <div class="author">${esc(b.author||"—")}</div>
       </div>
       <p class="intro">${esc(b.intro)}</p>
+      <button class="more" type="button">展开全文 ▾</button>
     </article>`).join("");
+  /* 简介超长才亮出「展开全文」，展开/收起切换 */
+  listEl.querySelectorAll(".card").forEach(card=>{
+    const intro=card.querySelector(".intro"),more=card.querySelector(".more");
+    if(intro.scrollHeight>intro.clientHeight+2)more.classList.add("on");
+    more.addEventListener("click",()=>{
+      const open=intro.classList.toggle("expanded");
+      more.textContent=open?"收起 ▴":"展开全文 ▾";
+    });
+  });
 }
 
 document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value;render();});
