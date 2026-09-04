@@ -113,7 +113,7 @@ async function loadAll(){
 function yearList(){return YEARS;}
 function esc(s){return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
 function coverHTML(b,i){
-  if(b.cover)return `<img src="${esc(b.cover)}" alt="${esc(b.title)}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'封面缺失'}))">`;
+  if(b.cover)return `<img src="${esc(b.cover)}" alt="${esc(b.title)}" loading="lazy" decoding="async" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'封面缺失'}))">`;
   const[c1,c2]=PALETTES[i%PALETTES.length];
   return `<span style="background:linear-gradient(160deg,${c1},${c2})">${esc(b.title.slice(0,12))}</span>`;
 }
